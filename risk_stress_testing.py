@@ -6,7 +6,7 @@ Student project: measure and stress-test the risk of an equity portfolio.
 1) Value-at-Risk (VaR) and Conditional VaR (CVaR / Expected Shortfall)
    computed 3 ways: historical, parametric (variance-covariance), Monte Carlo.
 2) Stress testing against historical crisis scenarios (2008 GFC, 2020 COVID crash,
-   a simple rate-shock scenario).
+   2022 rate-hike selloff).
 3) Rolling volatility and correlation heatmap.
 
 Data source: Yahoo Finance (real prices, daily).
@@ -122,14 +122,6 @@ def run_stress_scenarios(prices, daily_returns, portfolio_value):
         shocked_portfolio_return = float(np.dot(WEIGHTS, cumulative_stock_returns))
         dollar_impact = shocked_portfolio_return * portfolio_value
         results.append([name, shocked_portfolio_return, dollar_impact])
-
-    # a simple synthetic rate-shock: +200bps parallel shock, proxied as a flat
-    # -8% hit to rate-sensitive names (banks) and -3% to the rest (illustrative, not a real model)
-    rate_shock_returns = pd.Series(
-        [-0.03 if t not in ("JPM", "V") else -0.08 for t in TICKERS], index=TICKERS
-    )
-    rate_shock_return = float(np.dot(WEIGHTS, rate_shock_returns))
-    results.append(["Synthetic +200bps Rate Shock", rate_shock_return, rate_shock_return * portfolio_value])
 
     return pd.DataFrame(results, columns=["Scenario", "Portfolio Return", "P&L Impact ($)"])
 
